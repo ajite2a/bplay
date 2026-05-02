@@ -17,7 +17,7 @@ body {
     color: #fff;
     overflow-x: hidden;
     height: 100vh;
-    overflow-y: hidden;
+    overflow-y: auto;
 }
 
 /* Animated Glow Background */
@@ -141,10 +141,12 @@ body::before {
     border-color: #00f5ff;
 }
 #preview {
-    max-width: 100%;
+    max-width: 80%;
+    max-height: 120px;
     margin-top: 10px;
     border-radius: 10px;
     display: none;
+    object-fit: cover;
 }
 
 /* Button */
@@ -232,11 +234,12 @@ for(let i=0;i<20;i++){
     <label>Artist / Singer</label>
 </div>
 
-<div class="upload-box mb-2">
-    <input type="file" id="fileInput" name="screenshot" hidden>
+<div class="upload-box mb-2" id="uploadBoxTrigger">
     <div>📸 Tap to upload screenshot</div>
     <img id="preview">
 </div>
+
+<input type="file" id="fileInput" name="screenshot" hidden>
 
 <button class="btn btn-neon w-100" style="padding: 8px; font-size: 14px;">
     Submit & Pay 🎶
@@ -256,7 +259,7 @@ for(let i=0;i<20;i++){
 
 <script>
 // upload click
-$('.upload-box').click(function(){
+$('#uploadBoxTrigger').click(function(){
     $('#fileInput').click();
 });
 
