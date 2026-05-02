@@ -8,7 +8,7 @@ class CreateSongRequestsTable extends Migration
 {
     public function up()
     {
-         $this->forge->addField([
+        $this->forge->addField([
             'id' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
@@ -17,48 +17,53 @@ class CreateSongRequestsTable extends Migration
             ],
             'name' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 100,
+                'constraint' => '100',
             ],
             'phone' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 20,
+                'constraint' => '20',
             ],
             'song_name' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 255,
+                'constraint' => '200',
             ],
             'singer_name' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 255,
+                'constraint' => '200',
                 'null'       => true,
             ],
             'screenshot' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 255,
+                'constraint' => '300',
                 'null'       => true,
             ],
-            'payment_status' => [
-                'type'       => 'ENUM',
-                'constraint' => ['unpaid', 'paid', 'failed'],
-                'default'    => 'unpaid',
+            'razorpay_order_id' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '100',
+                'null'       => true,
+            ],
+            'razorpay_payment_id' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '100',
+                'null'       => true,
             ],
             'status' => [
                 'type'       => 'ENUM',
-                'constraint' => ['pending', 'approved', 'played'],
+                'constraint' => ['pending', 'approved', 'played', 'rejected'],
                 'default'    => 'pending',
             ],
-            'amount' => [
-                'type'       => 'DECIMAL',
-                'constraint' => '10,2',
-                'default'    => 0.00,
+            'payment_status' => [
+                'type'       => 'ENUM',
+                'constraint' => ['pending', 'completed', 'failed'],
+                'default'    => 'pending',
             ],
             'created_at' => [
-                'type' => 'DATETIME',
-                'null' => true,
+                'type'    => 'DATETIME',
+                'default' => null,
             ],
             'updated_at' => [
-                'type' => 'DATETIME',
-                'null' => true,
+                'type'    => 'DATETIME',
+                'default' => null,
             ],
         ]);
 

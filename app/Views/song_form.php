@@ -256,6 +256,7 @@ for(let i=0;i<20;i++){
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 // upload click
@@ -291,7 +292,7 @@ $('#songForm').submit(function(e){
         success:function(res){
             let data=JSON.parse(res);
             if(data.status==='success'){
-                window.location.href="/payment/"+data.id;
+                openRazorpayCheckout(data.order_id, data.id);
             }else{
                 $('#msg').html('<span class="text-danger">'+data.message+'</span>');
             }
@@ -301,6 +302,55 @@ $('#songForm').submit(function(e){
         }
     });
 });
+
+// Razorpay Checkout
+function openRazorpayCheckout(orderId, requestId) {
+    let options = {
+        "key": "<?php echo getenv('RAZORPAY_KEY_ID') ?? 'your_razorpay_key_id'; ?>",
+        "amount": 50000,
+        "currency": "INR",
+        "name": "DJ Request",
+        "description": "Song Request Payment",
+        "order_id": orderId,
+        "handler": function(response){
+            $.ajax({
+                url: "/payment-callback",
+                type: "POST",
+                data: {
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    request_id: requestId
+                },
+                success: function(res) {
+                    let result = JSON.parse(res);
+                    if(result.status === 'success') {
+                        window.location.href = "/payment-success";
+                    } else {
+                        window.location.href = "/payment-failed";
+                    }
+                },
+                error: function() {
+                    window.location.href = "/payment-failed";
+                }
+            });
+        },
+        "prefill": {
+            "contact": "",
+            "email": ""
+        },
+        "theme": {
+            "color": "#00f5ff"
+        },
+        "modal": {
+            "ondismiss": function() {
+                $('#msg').html('<span class="text-warning">Payment cancelled</span>');
+            }
+        }
+    };
+    let rzp1 = new Razorpay(options);
+    rzp1.open();
+}
 </script>
 
 </body>
