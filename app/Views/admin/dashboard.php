@@ -31,12 +31,109 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
             text-align: center;
+            flex: 1;
         }
 
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .user-info {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .user-info p {
+            margin: 0;
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 1000;
+            margin-top: 10px;
+        }
+
+        .user-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+            color: #667eea;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
         }
 
         .stats {
@@ -347,8 +444,23 @@
         }
 
         @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
             .header h1 {
                 font-size: 1.8em;
+            }
+
+            .user-menu {
+                width: 100%;
+            }
+
+            .user-dropdown {
+                right: auto;
+                left: 0;
+                min-width: 180px;
             }
 
             .stats {
@@ -387,8 +499,42 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>🎵 Admin Dashboard</h1>
-            <p>Manage Song Requests</p>
+            <div class="header-content">
+                <h1>🎵 Admin Dashboard</h1>
+                <p>Manage Song Requests</p>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="user-menu" onclick="toggleUserMenu()">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <p class="user-name"><?php echo htmlspecialchars(session()->get('name') ?? 'Admin'); ?></p>
+                    <p><?php echo htmlspecialchars(session()->get('role') ?? 'Administrator'); ?></p>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+
+                <!-- Dropdown Menu -->
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/admin/dashboard" class="dropdown-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="/logout" class="dropdown-item" style="border-top: 1px solid #eee; color: #ef4444;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!-- Stats -->
@@ -581,6 +727,22 @@
             
             setTimeout(() => alert.remove(), 4000);
         }
+
+        // Toggle user menu dropdown
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (!userMenu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
 
         // Close modal when clicking outside
         window.addEventListener('click', function(event) {

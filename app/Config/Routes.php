@@ -11,6 +11,11 @@ $routes->post('/payment-callback', 'Payment::handleCallback');
 $routes->get('/payment-success', 'Payment::success');
 $routes->get('/payment-failed', 'Payment::failed');
 
+// Login Routes
+$routes->get('/login', 'Login::index');
+$routes->post('/login', 'Login::authenticate');
+$routes->get('/logout', 'Login::logout');
+
 // Admin Routes
 $routes->get('/admin/dashboard', 'Admin::dashboard');
 $routes->post('/admin/approve/(:num)', 'Admin::approveRequest/$1');
