@@ -22,27 +22,39 @@ class Admin extends Controller
         // Get filter from request
         $filter = $this->request->getGet('filter') ?? 'all';
         
-        // Get all requests based on filter
+        // Get date filter, default to today
+        $dateFilter = $this->request->getGet('date') ?? date('Y-m-d');
+        
+        // Base query
+        $query = $this->songRequestModel;
+        
+        // Apply status/payment filter
         switch ($filter) {
             case 'pending':
-                $requests = $this->songRequestModel->where('status', 'pending')->orderBy('created_at','desc')->findAll();
+                $query = $query->where('status', 'pending');
                 break;
             case 'approved':
-                $requests = $this->songRequestModel->where('status', 'approved')->orderBy('created_at','desc')->findAll();
+                $query = $query->where('status', 'approved');
                 break;
             case 'rejected':
-                $requests = $this->songRequestModel->where('status', 'rejected')->orderBy('created_at','desc')->findAll();
+                $query = $query->where('status', 'rejected');
                 break;
             case 'paid':
-                $requests = $this->songRequestModel->where('payment_status', 'completed')->orderBy('created_at','desc')->findAll();
+                $query = $query->where('payment_status', 'completed');
                 break;
-            default:
-                $requests = $this->songRequestModel->orderBy('created_at','desc')->findAll();
         }
+        
+        // Apply date filter - filter by created_at date
+        if ($dateFilter) {
+            $query = $query->where('DATE(created_at)', $dateFilter);
+        }
+        
+        $requests = $query->orderBy('created_at','desc')->findAll();
 
         $data = [
             'requests' => $requests,
             'filter' => $filter,
+            'dateFilter' => $dateFilter,
             'totalRequests' => $this->songRequestModel->countAll(),
             'pendingCount' => $this->songRequestModel->where('status', 'pending')->countAllResults(),
             'approvedCount' => $this->songRequestModel->where('status', 'approved')->countAllResults(),

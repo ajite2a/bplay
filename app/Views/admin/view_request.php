@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -92,35 +96,35 @@
 
         .status-badge {
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
             font-size: 0.85em;
             font-weight: 600;
             text-transform: uppercase;
         }
 
         .status-pending {
-            background: #fef3c7;
-            color: #92400e;
+            background: #ffc107;
+            color: #000;
         }
 
         .status-approved {
-            background: #d1fae5;
-            color: #065f46;
+            background: #28a745;
+            color: #fff;
         }
 
         .status-rejected {
-            background: #fee2e2;
-            color: #991b1b;
+            background: #dc3545;
+            color: #fff;
         }
 
         .payment-pending {
-            background: #e0e7ff;
-            color: #3730a3;
+            background: #17a2b8;
+            color: #fff;
         }
 
         .payment-completed {
-            background: #ccfbf1;
+            background: #20c997;
             color: #134e4a;
         }
 
@@ -196,12 +200,12 @@
         }
 
         .payment-notice {
-            background: #fef3c7;
-            border: 1px solid #fcd34d;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
             border-radius: 5px;
             padding: 15px;
             margin-bottom: 20px;
-            color: #92400e;
+            color: #856404;
             font-weight: 500;
         }
 
@@ -271,7 +275,7 @@
                 <div class="detail-row">
                     <div class="detail-label">Request Status:</div>
                     <div class="detail-value">
-                        <span class="status-badge status-<?= strtolower($request['status']); ?>">
+                        <span class="badge bg-<?= $request['status'] === 'pending' ? 'warning' : ($request['status'] === 'approved' ? 'success' : 'danger'); ?>">
                             <?= ucfirst($request['status']); ?>
                         </span>
                     </div>
@@ -279,7 +283,7 @@
                 <div class="detail-row">
                     <div class="detail-label">Payment Status:</div>
                     <div class="detail-value">
-                        <span class="status-badge payment-<?= strtolower($request['payment_status']); ?>">
+                        <span class="badge bg-<?= $request['payment_status'] === 'completed' ? 'success' : 'info'; ?>">
                             <?= ucfirst($request['payment_status']); ?>
                         </span>
                     </div>
@@ -398,5 +402,7 @@
             }
         }
     </script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

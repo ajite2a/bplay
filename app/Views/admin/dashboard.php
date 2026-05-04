@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Song Requests</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -207,6 +212,30 @@
             gap: 10px;
         }
 
+        .date-filter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-filter label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .date-filter input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .date-filter input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -269,35 +298,35 @@
 
         .status-badge {
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.9em;
             font-weight: 600;
             text-transform: uppercase;
         }
 
         .status-pending {
-            background: #fef3c7;
-            color: #92400e;
+            background: #ffc107;
+            color: #000;
         }
 
         .status-approved {
-            background: #d1fae5;
-            color: #065f46;
+            background: #28a745;
+            color: #fff;
         }
 
         .status-rejected {
-            background: #fee2e2;
-            color: #991b1b;
+            background: #dc3545;
+            color: #fff;
         }
 
         .payment-pending {
-            background: #e0e7ff;
-            color: #3730a3;
+            background: #17a2b8;
+            color: #fff;
         }
 
         .payment-completed {
-            background: #ccfbf1;
+            background: #20c997;
             color: #134e4a;
         }
 
@@ -449,18 +478,19 @@
             padding: 15px 30px;
             margin: 0;
             border-radius: 0;
+            border: none;
         }
 
         .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-bottom: 2px solid #10b981;
+            background: #d4edda;
+            color: #155724;
+            border-bottom: 2px solid #28a745;
         }
 
         .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-bottom: 2px solid #ef4444;
+            background: #f8d7da;
+            color: #721c24;
+            border-bottom: 2px solid #dc3545;
         }
 
         @media (max-width: 768px) {
@@ -495,6 +525,15 @@
             .filter-buttons {
                 width: 100%;
                 justify-content: space-between;
+            }
+
+            .date-filter {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .date-filter input {
+                width: 100%;
             }
 
             table {
@@ -585,11 +624,15 @@
         <!-- Controls -->
         <div class="controls">
             <div class="filter-buttons">
-                <a href="?filter=all" class="filter-btn <?= $filter === 'all' ? 'active' : ''; ?>">All</a>
-                <a href="?filter=pending" class="filter-btn <?= $filter === 'pending' ? 'active' : ''; ?>">Pending</a>
-                <a href="?filter=approved" class="filter-btn <?= $filter === 'approved' ? 'active' : ''; ?>">Approved</a>
-                <a href="?filter=paid" class="filter-btn <?= $filter === 'paid' ? 'active' : ''; ?>">Paid</a>
-                <a href="?filter=rejected" class="filter-btn <?= $filter === 'rejected' ? 'active' : ''; ?>">Rejected</a>
+                <a href="?filter=all&date=<?= $dateFilter; ?>" class="filter-btn <?= $filter === 'all' ? 'active' : ''; ?>">All</a>
+                <a href="?filter=pending&date=<?= $dateFilter; ?>" class="filter-btn <?= $filter === 'pending' ? 'active' : ''; ?>">Pending</a>
+                <a href="?filter=approved&date=<?= $dateFilter; ?>" class="filter-btn <?= $filter === 'approved' ? 'active' : ''; ?>">Approved</a>
+                <a href="?filter=paid&date=<?= $dateFilter; ?>" class="filter-btn <?= $filter === 'paid' ? 'active' : ''; ?>">Paid</a>
+                <a href="?filter=rejected&date=<?= $dateFilter; ?>" class="filter-btn <?= $filter === 'rejected' ? 'active' : ''; ?>">Rejected</a>
+            </div>
+            <div class="date-filter">
+                <label for="dateInput">📅 Date:</label>
+                <input type="date" id="dateInput" name="date" value="<?= $dateFilter; ?>" onchange="filterByDate()">
             </div>
             <div class="action-buttons">
                 <a href="/admin/export-csv" class="btn btn-export">📥 Export CSV</a>
@@ -612,10 +655,8 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Song Name</th>
-                            <th>Singer</th>
+                            <th>User</th>
+                            <th>Song</th>
                             <th>Status</th>
                             <th>Payment</th>
                             <th>Screenshot</th>
@@ -627,17 +668,25 @@
                         <?php foreach ($requests as $req): ?>
                             <tr>
                                 <td><?= $req['id']; ?></td>
-                                <td><?= esc($req['name']); ?></td>
-                                <td><?= esc($req['phone']); ?></td>
-                                <td><?= esc($req['song_name']); ?></td>
-                                <td><?= esc($req['singer_name'] ?? '-'); ?></td>
                                 <td>
-                                    <span class="status-badge status-<?= strtolower($req['status']); ?>">
+                                    <div style="line-height: 1.6;">
+                                        <strong style="color: #27ae60; display: block;">👤 <?= esc($req['name']); ?></strong>
+                                        <span style="color: #3498db; font-size: 0.9em; display: block;">📱 <?= esc($req['phone']); ?></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="line-height: 1.6;">
+                                        <strong style="color: #667eea; display: block;">🎵 <?= esc($req['song_name']); ?></strong>
+                                        <span style="color: #e67e22; font-size: 0.9em; display: block;">👤 <?= esc($req['singer_name'] ?? '-'); ?></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<?= $req['status'] === 'pending' ? 'warning' : ($req['status'] === 'approved' ? 'success' : 'danger'); ?>">
                                         <?= ucfirst($req['status']); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="status-badge payment-<?= strtolower($req['payment_status']); ?>">
+                                    <span class="badge bg-<?= $req['payment_status'] === 'completed' ? 'success' : 'info'; ?>">
                                         <?= ucfirst($req['payment_status']); ?>
                                     </span>
                                 </td>
@@ -702,6 +751,12 @@
     <script>
         let currentRejectId = null;
         let currentApproveId = null;
+
+        function filterByDate() {
+            const dateInput = document.getElementById('dateInput').value;
+            const currentFilter = '<?= $filter; ?>';
+            window.location.href = `?filter=${currentFilter}&date=${dateInput}`;
+        }
 
         function openRejectModal(id) {
             currentRejectId = id;
@@ -822,5 +877,7 @@
             }
         });
     </script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
