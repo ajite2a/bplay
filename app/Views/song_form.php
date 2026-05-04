@@ -306,7 +306,7 @@ $('#songForm').submit(function(e){
 // Razorpay Checkout
 function openRazorpayCheckout(orderId, requestId) {
     let options = {
-        "key": "<?php echo getenv('RAZORPAY_KEY_ID') ?? 'your_razorpay_key_id'; ?>",
+        "key": "<?= getenv('RAZORPAY_KEY_ID') ?? 'your_razorpay_key_id'; ?>",
         "amount": 50000,
         "currency": "INR",
         "name": "DJ Request",

@@ -234,7 +234,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Request #<?php echo $request['id']; ?></h1>
+            <h1>Request #<?= $request['id']; ?></h1>
             <a href="/admin/dashboard" class="btn-back">← Back to Dashboard</a>
         </div>
 
@@ -244,11 +244,11 @@
                 <div class="section-title">👤 Personal Information</div>
                 <div class="detail-row">
                     <div class="detail-label">Name:</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($request['name']); ?></div>
+                    <div class="detail-value"><?= esc($request['name']); ?></div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Phone:</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($request['phone']); ?></div>
+                    <div class="detail-value"><?= esc($request['phone']); ?></div>
                 </div>
             </div>
 
@@ -257,11 +257,11 @@
                 <div class="section-title">🎵 Song Information</div>
                 <div class="detail-row">
                     <div class="detail-label">Song Name:</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($request['song_name']); ?></div>
+                    <div class="detail-value"><?= esc($request['song_name']); ?></div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Singer Name:</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($request['singer_name'] ?? '-'); ?></div>
+                    <div class="detail-value"><?= esc($request['singer_name'] ?? '-'); ?></div>
                 </div>
             </div>
 
@@ -271,16 +271,16 @@
                 <div class="detail-row">
                     <div class="detail-label">Request Status:</div>
                     <div class="detail-value">
-                        <span class="status-badge status-<?php echo strtolower($request['status']); ?>">
-                            <?php echo ucfirst($request['status']); ?>
+                        <span class="status-badge status-<?= strtolower($request['status']); ?>">
+                            <?= ucfirst($request['status']); ?>
                         </span>
                     </div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Payment Status:</div>
                     <div class="detail-value">
-                        <span class="status-badge payment-<?php echo strtolower($request['payment_status']); ?>">
-                            <?php echo ucfirst($request['payment_status']); ?>
+                        <span class="status-badge payment-<?= strtolower($request['payment_status']); ?>">
+                            <?= ucfirst($request['payment_status']); ?>
                         </span>
                     </div>
                 </div>
@@ -291,11 +291,11 @@
                 <div class="section-title">💳 Payment Information</div>
                 <div class="detail-row">
                     <div class="detail-label">Razorpay Order ID:</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($request['razorpay_order_id'] ?? '-'); ?></div>
+                    <div class="detail-value"><?= esc($request['razorpay_order_id'] ?? '-'); ?></div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Razorpay Payment ID:</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($request['razorpay_payment_id'] ?? '-'); ?></div>
+                    <div class="detail-value"><?= esc($request['razorpay_payment_id'] ?? '-'); ?></div>
                 </div>
             </div>
 
@@ -304,7 +304,7 @@
                 <div class="detail-section">
                     <div class="section-title">📸 Screenshot</div>
                     <div class="screenshot-container">
-                        <img src="<?php echo htmlspecialchars($request['screenshot']); ?>" alt="Screenshot" class="screenshot-img">
+                        <img src="<?= base_url(esc($request['screenshot'])); ?>" alt="Screenshot" class="screenshot-img">
                     </div>
                 </div>
             <?php endif; ?>
@@ -314,11 +314,11 @@
                 <div class="section-title">⏱️ Timestamps</div>
                 <div class="detail-row">
                     <div class="detail-label">Created:</div>
-                    <div class="detail-value"><?php echo date('M d, Y H:i:s', strtotime($request['created_at'])); ?></div>
+                    <div class="detail-value"><?= date('M d, Y H:i:s', strtotime($request['created_at'])); ?></div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Updated:</div>
-                    <div class="detail-value"><?php echo date('M d, Y H:i:s', strtotime($request['updated_at'])); ?></div>
+                    <div class="detail-value"><?= date('M d, Y H:i:s', strtotime($request['updated_at'])); ?></div>
                 </div>
             </div>
 
@@ -330,8 +330,8 @@
                     </div>
                 <?php endif; ?>
                 <div class="actions">
-                    <button class="btn btn-approve" onclick="approveRequest(<?php echo $request['id']; ?>)" <?php echo $request['payment_status'] !== 'completed' ? 'disabled' : ''; ?>>✓ Approve Request</button>
-                    <button class="btn btn-reject" onclick="rejectRequest(<?php echo $request['id']; ?>)" <?php echo $request['payment_status'] !== 'completed' ? 'disabled' : ''; ?>>✕ Reject Request</button>
+                    <button class="btn btn-approve" onclick="approveRequest(<?= $request['id']; ?>)" <?= $request['payment_status'] !== 'completed' ? 'disabled' : ''; ?>>✓ Approve Request</button>
+                    <button class="btn btn-reject" onclick="rejectRequest(<?= $request['id']; ?>)" <?= $request['payment_status'] !== 'completed' ? 'disabled' : ''; ?>>✕ Reject Request</button>
                 </div>
             <?php endif; ?>
         </div>

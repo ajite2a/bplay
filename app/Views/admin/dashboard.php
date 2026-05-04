@@ -348,6 +348,21 @@
             font-weight: 500;
         }
 
+        .screenshot-link {
+            display: inline-block;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .screenshot-link img {
+            transition: transform 0.3s ease;
+            display: block;
+        }
+
+        .screenshot-link:hover img {
+            transform: scale(1.1);
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 30px;
@@ -497,6 +512,11 @@
             .btn-small {
                 width: 100%;
             }
+
+            .screenshot-link img {
+                max-width: 40px !important;
+                max-height: 40px !important;
+            }
         }
     </style>
 </head>
@@ -515,8 +535,8 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-info">
-                    <p class="user-name"><?php echo htmlspecialchars(session()->get('name') ?? 'Admin'); ?></p>
-                    <p><?php echo htmlspecialchars(session()->get('role') ?? 'Administrator'); ?></p>
+                    <p class="user-name"><?= esc(session()->get('name') ?? 'Admin'); ?></p>
+                    <p><?= esc(session()->get('role') ?? 'Administrator'); ?></p>
                 </div>
                 <i class="fas fa-chevron-down"></i>
 
@@ -546,30 +566,30 @@
         <div class="stats">
             <div class="stat-card">
                 <h3>Total Requests</h3>
-                <div class="number"><?php echo $totalRequests ?? 0; ?></div>
+                <div class="number"><?= $totalRequests ?? 0; ?></div>
             </div>
             <div class="stat-card">
                 <h3>Pending</h3>
-                <div class="number" style="color: #f59e0b;"><?php echo $pendingCount ?? 0; ?></div>
+                <div class="number" style="color: #f59e0b;"><?= $pendingCount ?? 0; ?></div>
             </div>
             <div class="stat-card">
                 <h3>Approved</h3>
-                <div class="number" style="color: #10b981;"><?php echo $approvedCount ?? 0; ?></div>
+                <div class="number" style="color: #10b981;"><?= $approvedCount ?? 0; ?></div>
             </div>
             <div class="stat-card">
                 <h3>Paid</h3>
-                <div class="number" style="color: #8b5cf6;"><?php echo $paidCount ?? 0; ?></div>
+                <div class="number" style="color: #8b5cf6;"><?= $paidCount ?? 0; ?></div>
             </div>
         </div>
 
         <!-- Controls -->
         <div class="controls">
             <div class="filter-buttons">
-                <a href="?filter=all" class="filter-btn <?php echo $filter === 'all' ? 'active' : ''; ?>">All</a>
-                <a href="?filter=pending" class="filter-btn <?php echo $filter === 'pending' ? 'active' : ''; ?>">Pending</a>
-                <a href="?filter=approved" class="filter-btn <?php echo $filter === 'approved' ? 'active' : ''; ?>">Approved</a>
-                <a href="?filter=paid" class="filter-btn <?php echo $filter === 'paid' ? 'active' : ''; ?>">Paid</a>
-                <a href="?filter=rejected" class="filter-btn <?php echo $filter === 'rejected' ? 'active' : ''; ?>">Rejected</a>
+                <a href="?filter=all" class="filter-btn <?= $filter === 'all' ? 'active' : ''; ?>">All</a>
+                <a href="?filter=pending" class="filter-btn <?= $filter === 'pending' ? 'active' : ''; ?>">Pending</a>
+                <a href="?filter=approved" class="filter-btn <?= $filter === 'approved' ? 'active' : ''; ?>">Approved</a>
+                <a href="?filter=paid" class="filter-btn <?= $filter === 'paid' ? 'active' : ''; ?>">Paid</a>
+                <a href="?filter=rejected" class="filter-btn <?= $filter === 'rejected' ? 'active' : ''; ?>">Rejected</a>
             </div>
             <div class="action-buttons">
                 <a href="/admin/export-csv" class="btn btn-export">📥 Export CSV</a>
@@ -598,6 +618,7 @@
                             <th>Singer</th>
                             <th>Status</th>
                             <th>Payment</th>
+                            <th>Screenshot</th>
                             <th>Date</th>
                             <th>Actions</th>
                         </tr>
@@ -605,28 +626,37 @@
                     <tbody>
                         <?php foreach ($requests as $req): ?>
                             <tr>
-                                <td><?php echo $req['id']; ?></td>
-                                <td><?php echo htmlspecialchars($req['name']); ?></td>
-                                <td><?php echo htmlspecialchars($req['phone']); ?></td>
-                                <td><?php echo htmlspecialchars($req['song_name']); ?></td>
-                                <td><?php echo htmlspecialchars($req['singer_name'] ?? '-'); ?></td>
+                                <td><?= $req['id']; ?></td>
+                                <td><?= esc($req['name']); ?></td>
+                                <td><?= esc($req['phone']); ?></td>
+                                <td><?= esc($req['song_name']); ?></td>
+                                <td><?= esc($req['singer_name'] ?? '-'); ?></td>
                                 <td>
-                                    <span class="status-badge status-<?php echo strtolower($req['status']); ?>">
-                                        <?php echo ucfirst($req['status']); ?>
+                                    <span class="status-badge status-<?= strtolower($req['status']); ?>">
+                                        <?= ucfirst($req['status']); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="status-badge payment-<?php echo strtolower($req['payment_status']); ?>">
-                                        <?php echo ucfirst($req['payment_status']); ?>
+                                    <span class="status-badge payment-<?= strtolower($req['payment_status']); ?>">
+                                        <?= ucfirst($req['payment_status']); ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('M d, Y', strtotime($req['created_at'])); ?></td>
+                                <td>
+                                    <?php if ($req['screenshot']): ?>
+                                        <a href="<?= base_url(esc($req['screenshot'])); ?>" target="_blank" class="screenshot-link">
+                                            <img src="<?= base_url(esc($req['screenshot'])); ?>" alt="Screenshot" style="max-width: 50px; max-height: 50px; border-radius: 4px; cursor: pointer; object-fit: cover;">
+                                        </a>
+                                    <?php else: ?>
+                                        <span style="color: #999; font-size: 0.9em;">N/A</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= date('M d, Y H:i', strtotime($req['created_at'])); ?></td>
                                 <td>
                                     <div class="action-cell">
-                                        <a href="/admin/view/<?php echo $req['id']; ?>" class="btn-small btn-view">View</a>
+                                        <a href="/admin/view/<?= $req['id']; ?>" class="btn-small btn-view">View</a>
                                         <?php if ($req['status'] === 'pending' && $req['payment_status'] === 'completed'): ?>
-                                            <button class="btn-small btn-approve" onclick="openApproveModal(<?php echo $req['id']; ?>)">Approve</button>
-                                            <button class="btn-small btn-reject" onclick="openRejectModal(<?php echo $req['id']; ?>)">Reject</button>
+                                            <button class="btn-small btn-approve" onclick="openApproveModal(<?= $req['id']; ?>)">Approve</button>
+                                            <button class="btn-small btn-reject" onclick="openRejectModal(<?= $req['id']; ?>)">Reject</button>
                                         <?php elseif ($req['status'] === 'pending'): ?>
                                             <span class="text-muted" style="font-size: 0.85em; display: inline-block; padding: 5px 10px;">Awaiting Payment</span>
                                         <?php endif; ?>
