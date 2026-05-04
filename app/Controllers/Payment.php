@@ -88,7 +88,7 @@ class Payment extends Controller
             }
 
             // Create Razorpay order
-            $razorpayOrder = $this->createRazorpayOrder($requestId, 50000); // Amount in paise (500 INR)
+            $razorpayOrder = $this->createRazorpayOrder($requestId, env('REQUEST_FEE_AMOUNT',0)); // Amount in paise (500 INR)
 
             if ($razorpayOrder && isset($razorpayOrder['id'])) {
                 // Update order id using model

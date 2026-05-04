@@ -86,7 +86,7 @@ class SongRequest extends Model
         return $this->update($id, [
             'payment_status'      => 'completed',
             'razorpay_payment_id' => $paymentId,
-            'status'              => 'approved'
+            'status'              => 'pending'// Set to pending until admin approves
         ]);
     }
 

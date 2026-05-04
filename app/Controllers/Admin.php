@@ -25,19 +25,19 @@ class Admin extends Controller
         // Get all requests based on filter
         switch ($filter) {
             case 'pending':
-                $requests = $this->songRequestModel->where('status', 'pending')->findAll();
+                $requests = $this->songRequestModel->where('status', 'pending')->orderBy('created_at','desc')->findAll();
                 break;
             case 'approved':
-                $requests = $this->songRequestModel->where('status', 'approved')->findAll();
+                $requests = $this->songRequestModel->where('status', 'approved')->orderBy('created_at','desc')->findAll();
                 break;
             case 'rejected':
-                $requests = $this->songRequestModel->where('status', 'rejected')->findAll();
+                $requests = $this->songRequestModel->where('status', 'rejected')->orderBy('created_at','desc')->findAll();
                 break;
             case 'paid':
-                $requests = $this->songRequestModel->where('payment_status', 'completed')->findAll();
+                $requests = $this->songRequestModel->where('payment_status', 'completed')->orderBy('created_at','desc')->findAll();
                 break;
             default:
-                $requests = $this->songRequestModel->findAll();
+                $requests = $this->songRequestModel->orderBy('created_at','desc')->findAll();
         }
 
         $data = [
@@ -57,17 +57,43 @@ class Admin extends Controller
      */
     public function approveRequest($id)
     {
-        if ($this->request->isAJAX() && strtoupper($this->request->getMethod()) === 'POST') {
-            $result = $this->songRequestModel->update($id, [
-                'status' => 'approved'
-            ]);
+        if (strtoupper($this->request->getMethod()) === 'POST') {
+            try {
+                $request = $this->songRequestModel->find($id);
+                
+                if (!$request) {
+                    return $this->response
+                        ->setStatusCode(404)
+                        ->setHeader('Content-Type', 'application/json')
+                        ->setJSON(['status' => 'error', 'message' => 'Request not found']);
+                }
+                
+                if ($request['payment_status'] !== 'completed') {
+                    return $this->response
+                        ->setStatusCode(400)
+                        ->setHeader('Content-Type', 'application/json')
+                        ->setJSON(['status' => 'error', 'message' => 'Payment must be completed before approving']);
+                }
+                
+                $result = $this->songRequestModel->update($id, [
+                    'status' => 'approved'
+                ]);
 
-            if ($result) {
-                echo json_encode(['status' => 'success', 'message' => 'Request approved']);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to approve request']);
+                return $this->response
+                    ->setHeader('Content-Type', 'application/json')
+                    ->setJSON(['status' => 'success', 'message' => 'Request approved']);
+            } catch (\Exception $e) {
+                return $this->response
+                    ->setStatusCode(400)
+                    ->setHeader('Content-Type', 'application/json')
+                    ->setJSON(['status' => 'error', 'message' => 'Failed to approve request']);
             }
         }
+        
+        return $this->response
+            ->setStatusCode(400)
+            ->setHeader('Content-Type', 'application/json')
+            ->setJSON(['status' => 'error', 'message' => 'Invalid request']);
     }
 
     /**
@@ -75,19 +101,45 @@ class Admin extends Controller
      */
     public function rejectRequest($id)
     {
-        if ($this->request->isAJAX() && strtoupper($this->request->getMethod()) === 'POST') {
-            $reason = $this->request->getPost('reason') ?? '';
-            
-            $result = $this->songRequestModel->update($id, [
-                'status' => 'rejected'
-            ]);
+        if (strtoupper($this->request->getMethod()) === 'POST') {
+            try {
+                $request = $this->songRequestModel->find($id);
+                
+                if (!$request) {
+                    return $this->response
+                        ->setStatusCode(404)
+                        ->setHeader('Content-Type', 'application/json')
+                        ->setJSON(['status' => 'error', 'message' => 'Request not found']);
+                }
+                
+                if ($request['payment_status'] !== 'completed') {
+                    return $this->response
+                        ->setStatusCode(400)
+                        ->setHeader('Content-Type', 'application/json')
+                        ->setJSON(['status' => 'error', 'message' => 'Payment must be completed before rejecting']);
+                }
+                
+                $reason = $this->request->getPost('reason') ?? '';
+                
+                $result = $this->songRequestModel->update($id, [
+                    'status' => 'rejected'
+                ]);
 
-            if ($result) {
-                echo json_encode(['status' => 'success', 'message' => 'Request rejected']);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to reject request']);
+                return $this->response
+                    ->setHeader('Content-Type', 'application/json')
+                    ->setJSON(['status' => 'success', 'message' => 'Request rejected']);
+            } catch (\Exception $e) {
+                return $this->response
+                    ->setStatusCode(400)
+                    ->setHeader('Content-Type', 'application/json')
+                    ->setJSON(['status' => 'error', 'message' => 'Failed to reject request']);
             }
         }
+        
+        return $this->response
+            ->setStatusCode(400)
+            ->setHeader('Content-Type', 'application/json')
+            ->setJSON(['status' => 'error', 'message' => 'Invalid request']);
     }
 
     /**

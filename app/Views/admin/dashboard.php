@@ -343,6 +343,11 @@
             background: #2563eb;
         }
 
+        .text-muted {
+            color: #999;
+            font-weight: 500;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 30px;
@@ -619,9 +624,11 @@
                                 <td>
                                     <div class="action-cell">
                                         <a href="/admin/view/<?php echo $req['id']; ?>" class="btn-small btn-view">View</a>
-                                        <?php if ($req['status'] === 'pending'): ?>
-                                            <button class="btn-small btn-approve" onclick="approveRequest(<?php echo $req['id']; ?>)">Approve</button>
+                                        <?php if ($req['status'] === 'pending' && $req['payment_status'] === 'completed'): ?>
+                                            <button class="btn-small btn-approve" onclick="openApproveModal(<?php echo $req['id']; ?>)">Approve</button>
                                             <button class="btn-small btn-reject" onclick="openRejectModal(<?php echo $req['id']; ?>)">Reject</button>
+                                        <?php elseif ($req['status'] === 'pending'): ?>
+                                            <span class="text-muted" style="font-size: 0.85em; display: inline-block; padding: 5px 10px;">Awaiting Payment</span>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -630,6 +637,18 @@
                     </tbody>
                 </table>
             <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Approve Modal -->
+    <div class="modal" id="approveModal">
+        <div class="modal-content">
+            <div class="modal-header">Approve Request</div>
+            <p>Are you sure you want to approve this request?</p>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" onclick="closeApproveModal()">Cancel</button>
+                <button type="button" class="btn btn-approve" onclick="confirmApprove()">Approve</button>
+            </div>
         </div>
     </div>
 
@@ -652,6 +671,7 @@
 
     <script>
         let currentRejectId = null;
+        let currentApproveId = null;
 
         function openRejectModal(id) {
             currentRejectId = id;
@@ -664,14 +684,19 @@
             currentRejectId = null;
         }
 
-        document.getElementById('rejectForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            rejectRequest(currentRejectId);
-        });
+        function openApproveModal(id) {
+            currentApproveId = id;
+            document.getElementById('approveModal').classList.add('show');
+        }
 
-        function approveRequest(id) {
-            if (confirm('Are you sure you want to approve this request?')) {
-                fetch(`/admin/approve/${id}`, {
+        function closeApproveModal() {
+            document.getElementById('approveModal').classList.remove('show');
+            currentApproveId = null;
+        }
+
+        function confirmApprove() {
+            if (currentApproveId) {
+                fetch(`/admin/approve/${currentApproveId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -681,6 +706,7 @@
                 .then(data => {
                     if (data.status === 'success') {
                         showAlert(data.message, 'success');
+                        closeApproveModal();
                         setTimeout(() => location.reload(), 1500);
                     } else {
                         showAlert(data.message, 'error');
@@ -691,6 +717,15 @@
                     console.error('Error:', error);
                 });
             }
+        }
+
+        document.getElementById('rejectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            rejectRequest(currentRejectId);
+        });
+
+        function approveRequest(id) {
+            openApproveModal(id);
         }
 
         function rejectRequest(id) {
@@ -746,9 +781,14 @@
 
         // Close modal when clicking outside
         window.addEventListener('click', function(event) {
-            const modal = document.getElementById('rejectModal');
-            if (event.target === modal) {
+            const rejectModal = document.getElementById('rejectModal');
+            const approveModal = document.getElementById('approveModal');
+            
+            if (event.target === rejectModal) {
                 closeRejectModal();
+            }
+            if (event.target === approveModal) {
+                closeApproveModal();
             }
         });
     </script>

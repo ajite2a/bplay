@@ -186,6 +186,25 @@
             background: #5568d3;
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            background-color: inherit;
+        }
+
+        .payment-notice {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #92400e;
+            font-weight: 500;
+        }
+
         @media (max-width: 600px) {
             .header {
                 flex-direction: column;
@@ -305,9 +324,14 @@
 
             <!-- Actions -->
             <?php if ($request['status'] === 'pending'): ?>
+                <?php if ($request['payment_status'] !== 'completed'): ?>
+                    <div class="payment-notice">
+                        ⚠️ Payment must be completed before you can approve or reject this request.
+                    </div>
+                <?php endif; ?>
                 <div class="actions">
-                    <button class="btn btn-approve" onclick="approveRequest(<?php echo $request['id']; ?>)">✓ Approve Request</button>
-                    <button class="btn btn-reject" onclick="rejectRequest(<?php echo $request['id']; ?>)">✕ Reject Request</button>
+                    <button class="btn btn-approve" onclick="approveRequest(<?php echo $request['id']; ?>)" <?php echo $request['payment_status'] !== 'completed' ? 'disabled' : ''; ?>>✓ Approve Request</button>
+                    <button class="btn btn-reject" onclick="rejectRequest(<?php echo $request['id']; ?>)" <?php echo $request['payment_status'] !== 'completed' ? 'disabled' : ''; ?>>✕ Reject Request</button>
                 </div>
             <?php endif; ?>
         </div>
@@ -315,6 +339,11 @@
 
     <script>
         function approveRequest(id) {
+            const button = event.target;
+            if (button.disabled) {
+                alert('Payment must be completed before approving');
+                return;
+            }
             if (confirm('Are you sure you want to approve this request?')) {
                 fetch(`/admin/approve/${id}`, {
                     method: 'POST',
@@ -339,6 +368,11 @@
         }
 
         function rejectRequest(id) {
+            const button = event.target;
+            if (button.disabled) {
+                alert('Payment must be completed before rejecting');
+                return;
+            }
             const reason = prompt('Enter reason for rejection:');
             if (reason !== null) {
                 fetch(`/admin/reject/${id}`, {
